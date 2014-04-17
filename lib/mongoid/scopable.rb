@@ -115,7 +115,10 @@ module Mongoid
       #
       # @since 3.0.0
       def queryable
-        scope_stack.last || Criteria.new(self)
+        return scope_stack.last unless scope_stack.empty?
+        queryable_ancestor = (ancestors - [self]).find {|a| a.respond_to?(:queryable) }
+        return queryable_ancestor.queryable if queryable_ancestor
+        Criteria.new(self)
       end
 
       # Create a scope that can be accessed from the class level or chained to

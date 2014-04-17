@@ -783,6 +783,22 @@ describe Mongoid::Scopable do
         it "removes all scoping" do
           expect(unscoped.selector).to be_empty
         end
+
+      end
+
+      context "when default scope is in a super class" do
+        before do
+          Band.scope(:active, -> { Band.where(active: true) })
+        end
+
+        let(:unscoped) do
+          class RockBand < Band; end
+          RockBand.unscoped.active
+        end
+        
+        it "clears default scope" do
+          expect(unscoped.selector).to eq({ "active" => true })
+        end
       end
     end
 
